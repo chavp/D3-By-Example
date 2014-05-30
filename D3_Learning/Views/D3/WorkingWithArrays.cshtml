@@ -1,0 +1,80 @@
+﻿@{
+    ViewBag.Title = "WorkingWithArrays";
+}
+
+<div class="panel panel-default">
+  <div class="panel-heading">Working With Arrays</div>
+  <div class="panel-body">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Function</th>
+                <th>Result</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+@section scripts{
+    @Scripts.Render("~/bundles/d3")
+
+    <script>
+        $(function () {
+            var array = [3, 2, 11, 7, 6, 4, 10, 8, 15];
+            var ascending = array.concat();
+            var descending = array.concat();
+
+            var functions = [{
+                name: 'array',
+                result: array
+            }, {
+                name: 'd3.min(array)',
+                act: d3.min
+            }, {
+                name: 'd3.max(array)',
+                act: d3.max
+            }, {
+                name: 'd3.extent(array)',
+                act: d3.extent
+            }, {
+                name: 'd3.sum(array)',
+                act: d3.sum
+            }, {
+                name: 'd3.median(array)',
+                act: d3.median
+            }, {
+                name: 'd3.mean(array)',
+                act: d3.mean
+            }, {
+                name: 'array.sort(d3.ascending)',
+                result: array.concat().sort(d3.ascending)
+            }, {
+                name: 'array.sort(d3.descending)',
+                result: array.concat().sort(d3.descending)
+            }, {
+                name: 'd3.quantile(array.sort(d3.ascending), 0.25)',
+                result: d3.quantile(array.concat().sort(d3.ascending), 0.25)
+            }, {
+                name: 'd3.bisect(array.sort(d3.ascending), 6)',
+                result: d3.bisect(array.concat().sort(d3.ascending), 6)
+            }];
+
+            var rows = d3.select('tbody')
+                            .selectAll('tr')
+                            .data(functions);
+
+            rows.enter().append('tr');
+            rows.exit().remove();
+
+            rows.html(function (d) {
+                if (d.act) {
+                    return '<td>' + d.name + '</td><td>' + d.act(array) + '</td>';
+                } else {
+                    return '<td>' + d.name + '</td><td>' + d.result + '</td>';
+                }
+            });
+        });
+    </script>
+}

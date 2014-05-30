@@ -1,0 +1,156 @@
+﻿@{
+    ViewBag.Title = "InteractionAndTransitions";
+}
+
+<style>
+    .axis path, line {
+        stroke: black;
+    }
+    .line {
+        float: left;
+    }
+    .line_container {
+        width: 150px;
+        height: 20px;
+    }
+    path {
+        fill: none;
+    }
+    .key {
+        float: right;
+    }
+    .key_line {
+        font-size: 17px;
+        width: 100%;
+    }
+    .key_square {
+        height: 10px;
+        width: 10px;
+        outline: solid 1px black;
+        float: left;
+        margin: 6px 10px 0px 10px;
+    }
+    #timeseries {
+        float: left;
+    }
+</style>
+
+<h2>Interaction & Transitions</h2>
+<hr />
+<div id="timeseries"></div>
+<div id="key"></div>
+@section scripts{
+    @Scripts.Render("~/bundles/d3")
+
+    <script>
+        'use strict';
+
+        var time_scale, percent_scale;
+
+        function draw(data) {
+            // A Robust Viewport Setup
+            var container_dimensions = { width: 900, height: 400 },
+                margins = { top: 10, right: 20, bottom: 30, left: 60 },
+                chart_dimensions = {
+                    width: container_dimensions.width - margins.left - margins.right,
+                    height: container_dimensions.height - margins.top - margins.bottom
+                };
+
+            var chart = d3.select("#timeseries")
+                        .append("svg")
+                            .attr("width", container_dimensions.width)
+                            .attr("height", container_dimensions.height)
+                        .append("g")
+                            .attr("transform", "translate(" + margins.left + "," + margins.top + ")")
+                            .attr("id", "chart");
+
+            time_scale = d3.time.scale()
+                            .range([0, chart_dimensions.width])
+                            .domain([new Date(2008, 0, 1), new Date(2011, 3, 1)]);
+
+            percent_scale = d3.scale.linear()
+                            .range([chart_dimensions.height, 0])
+                            .domain([65, 90]);
+            var time_axis = d3.svg.axis()
+                            .scale(time_scale);
+
+            var count_axis = d3.svg.axis()
+                            .scale(percent_scale)
+                            .orient("left");
+
+            chart.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + chart_dimensions.height + ")")
+                .call(time_axis);
+
+            chart.append("g")
+                    .attr("class", "y axis")
+                .call(count_axis);
+
+            d3.select(".y.axis")
+                .append("text")
+                    .attr("text-anchor", "middle")
+                .text("percent on time")
+                    .attr("transform", "rotate (-270, 0, 0)")
+                    .attr("x", container_dimensions.height / 2)
+                    .attr("y", 50);
+
+            var key_items = d3.select("#key")
+                    .selectAll("div")
+                    .data(data)
+                    .enter()
+                    .append("div")
+                        .attr("class", "key_line")
+                        .attr("id", function (d) { return d.LineID; });
+
+            key_items.append("div")
+                        .attr("id", function (d) { return "key_square_" + d.LineID; })
+                        .attr("class", "key_square");
+
+            key_items.append("div")
+                        .attr("class", "key_label")
+                    .text(function (d) { return d.LineName; });
+
+            // Adding Interaction
+            d3.selectAll(".key_line")
+                .on("click", get_timeseries_data);
+        }
+
+        function get_timeseries_data() {
+            // get the id of the current element
+            var id = d3.select(this).attr("id");
+            // see if we have an associated time series
+            //var ts = d3.select("#" + id + "_path");
+            @*if (ts.empty()) {
+                d3.json('@Url.Action("GetSubwayWaits", "D3")', function (data) {
+                    filtered_data = data.filter(function (d) { return d.LineID === id });
+                    draw_timeseries(filtered_data, id);
+                });
+            } else {
+                ts.remove();
+            }*@
+            d3.json('@Url.Action("GetSubwayWaits", "D3")', function (data) {
+                var filtered_data = data.filter(function (d) { return d.LineID === id });
+                draw_timeseries(filtered_data, id);
+            });
+
+        }
+
+        function draw_timeseries(data, id) {
+            var line = d3.svg.line()
+                        .x(function (d) { return time_scale(d.Month) })
+                        .y(function (d) { return percent_scale(d.LatePercent) })
+                        .interpolate("linear");
+            var g = d3.select("#chart")
+                    .append("g")
+                        .attr("id", id + "_path")
+                        .attr("class", id.split("_")[1]);
+            g.append("path")
+                .attr("d", line(data));
+        }
+
+        $(function () {
+            d3.json('@Url.Action("GetSubwayWaitStatistics", "D3")', draw);
+        });
+    </script>
+}

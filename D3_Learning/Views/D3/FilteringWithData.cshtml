@@ -1,0 +1,164 @@
+﻿@{
+    ViewBag.Title = "FilteringWithData";
+}
+
+<style>
+    .text {
+        color: red;
+        margin: 3px;
+    }
+    .h-bar {
+        background-color: black;
+        margin: 3px;
+    }
+    .selected {
+        opacity: 0.5;
+    }
+</style>
+
+<div class="panel panel-default">
+  <div class="panel-heading">Filtering With Data $ Sorting with data</div>
+  <div class="panel-body">
+      <div class="chart"></div>
+      <hr/>
+      <div class="btn-group">
+      </div>
+  </div>
+</div>
+
+@section scripts{
+    @Scripts.Render("~/bundles/d3")
+    <script>
+        $(function () {
+            function makeData() {
+                return [ // <-A
+                    { expense: 10, category: "Retail" },
+                    { expense: 15, category: "Gas" },
+                    { expense: 30, category: "Retail" },
+                    { expense: 50, category: "Dining" },
+                    { expense: 80, category: "Gas" },
+                    { expense: 65, category: "Retail" },
+                    { expense: 55, category: "Gas" },
+                    { expense: 30, category: "Dining" },
+                    { expense: 20, category: "Retail" },
+                    { expense: 10, category: "Dining" },
+                    { expense: 8, category: "Gas" }
+                ];
+            }
+
+            var data = makeData();
+
+            var fillterActions = [
+                {
+                    text: 'Retail',
+                    action: function () {
+                        render(data, 'Retail');
+                    }
+                },
+                {
+                    text: 'Gas',
+                    action: function () {
+                        render(data, 'Gas');
+                    }
+                },
+                {
+                    text: 'Dining',
+                    action: function () {
+                        render(data, 'Dining');
+                    }
+                }, {
+                    text: 'Sort by Width',
+                    action: function () {
+                        sort(compareByExpense);
+                    }
+                }, {
+                    text: 'Sort by Category',
+                    action: function () {
+                        sort(compareByCategory);
+                    }
+                }, {
+                    text: 'Clear',
+                    action: function () {
+                        d3.select('.chart').selectAll('div.h-bar').remove();
+                        data = makeData();
+                        render(data);
+                    }
+                }
+            ];
+
+            var btnGrp = d3.select('.btn-group')
+                .selectAll('button')
+                .data(fillterActions);
+
+            btnGrp.exit().remove();
+
+            btnGrp.enter()
+                .append('a')
+                    .classed('btn btn-default', true)
+                .text(function (d) {
+                    return d.text;
+                }).on('click', function (d) {
+                    if (d.action) d.action();
+                });
+
+            var compareByExpense = function (a, b) { // <-F
+                return a.expense < b.expense ? -1 : 1;
+            };
+            var compareByCategory = function (a, b) { // <-G
+                var s = 0;
+                if (a.category < b.category) {
+                    --s;
+                } else if (a.category > b.category) {
+                    ++s;
+                } else {
+                    if (a.expense < b.expense) {
+                        --s;
+                    } else {
+                        ++s;
+                    }
+                }
+                return s;
+            };
+
+            function render(data, category) {
+                //d3.select('.chart').selectAll('div.h-bar').remove();
+
+                var selection_chart = d3.select('.chart')
+                    .selectAll('div.h-bar');
+
+                var data_chart = selection_chart.data(data);
+                data_chart.exit().remove();
+
+                data_chart.enter()
+                    .append('div')
+                        .attr('class', 'h-bar')
+                        .style("width", function (d) {
+                            return (d.expense * 5) + "px";
+                        })
+                    .append('span')
+                        .attr('class', 'text')
+                        .text(function (d) {
+                            return d.category;
+                        });
+
+                selection_chart.classed("selected", false);
+
+                selection_chart.filter(function (d, i) {
+                    return d.category === category;
+                }).classed("selected", true);
+            }
+
+            function sort(comparator) {
+                if (comparator) {
+                    d3.select('.chart')
+                        .selectAll('div.h-bar')
+                        .sort(comparator);
+
+                    data.sort(comparator);
+                } 
+            }
+
+            render(data);
+        });
+    </script>
+}

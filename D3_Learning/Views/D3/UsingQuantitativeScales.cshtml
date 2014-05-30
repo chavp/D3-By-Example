@@ -1,0 +1,137 @@
+﻿@{
+    ViewBag.Title = "UsingQuantitativeScales";
+}
+
+<h2>Using Quantitative Scales</h2>
+
+<div class="panel panel-default">
+  <div class="panel-heading">Using Quantitative Scales</div>
+  <div class="panel-body">
+    <div id="linear" class="row"></div>
+    <div id="linear-capped" class="row"></div>
+    <div id="pow" class="row"></div>
+    <div id="pow-capped" class="row"></div>
+    <div id="log" class="row"></div>
+    <div id="log-capped" class="row"></div>
+    <div id="time" class="row"></div>
+    <div id="alphabet" class="row"></div>
+    <div id="category10" class="row"></div>
+    <div id="category20" class="row"></div>
+    <div id="category20b" class="row"></div>
+    <div id="category20c" class="row"></div>
+  </div>
+</div>
+
+@section scripts{
+    @Scripts.Render("~/bundles/d3")
+    <script>
+        $(function () {
+            var data = [
+                { val: 1 },
+                { val: 2 },
+                { val: 3 },
+                { val: 4 },
+                { val: 5 },
+                { val: 6 },
+                { val: 7 },
+                { val: 8 },
+                { val: 9 },
+                { val: 10 }
+            ];
+            
+            function render(data, scale, selector, text) {
+                var query = "div";
+                d3.select(selector).selectAll(query)
+                    .data(data)
+                    .enter()
+                    .append("div")
+                        .classed("col-md-1 alert alert-info", true);
+                    //.append("span");
+                        //.classed("alert alert-info", true);
+
+                d3.select(selector).selectAll(query)
+                    .data(data)
+                    .exit().remove();
+
+                d3.select(selector).selectAll(query)
+                    .data(data)
+                    .style("display", "inline-block")
+                    .style("color", function (d) {
+                        var val = scale(d.val);
+                        if (typeof (val) !== "number") {
+                            return val.indexOf("#") >= 0 ? val : "";
+                        }
+                        return "";
+                    })
+                    .html(function (d) {
+                        if (d.val) {
+                            var val = scale(d.val);
+                            if (typeof (val) === "number") {
+                                return d3.round(val, 2);
+                            } 
+                            return val;
+                        } else {
+                            var format = d3.time.format("%x"); // <-H
+                            return format(d) + "<br/>" + scale(d);
+                        }
+                    });
+
+                d3.select(selector).append('div').classed("col-md-2 alert alert-success", true).text(text);
+            }
+
+            var linear = d3.scale.linear() // <-A
+                .domain([1, 10]) // <-B
+                .range([1, 10]); // <-C
+            var linearCapped = d3.scale.linear()
+                .domain([1, 10])
+                .range([1, 20]); // <-D
+
+            var pow = d3.scale.pow().exponent(2); // <-E
+            var powCapped = d3.scale.pow() // <-F
+                .exponent(2)
+                .domain([1, 10])
+                .rangeRound([1, 10]); // <-G
+
+            var log = d3.scale.log(); // <-H
+            var logCapped = d3.scale.log() // <-I
+                .domain([1, 10])
+                .rangeRound([1, 10]);
+
+            render(data, linear, "#linear", "n");
+            render(data, linearCapped, "#linear-capped", "1<=a*n + b<= 20");
+            render(data, pow, "#pow", "n^2");
+            render(data, powCapped, "#pow-capped", "1 <=a*n^2 + b<= 10");
+            render(data, log, "#log", "log(n)");
+            render(data, logCapped, "#log-capped", "1 <=a*log(n) + b <= 10");
+
+
+            var start = new Date(2013, 0, 1), // <-A
+                end = new Date(2013, 11, 31),
+                range = [0, 1200],
+                time = d3.time.scale().domain([start, end]) // <-B
+                .rangeRound(range), // <-C
+                max = 10,
+                time_data = [];
+
+            for (var i = 0; i < max; ++i) { // <-D
+                var date = new Date(start.getTime());
+                date.setMonth(start.getMonth() + i);
+                time_data.push(date);
+            }
+
+            render(time_data, time, "#time", "time");
+
+            var alphabet = d3.scale.ordinal() // <-B
+                            .domain(d3.map(function (d) { return d.val; }))
+                            .range(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]);
+
+            render(data, alphabet, "#alphabet", "Alphabet");
+            render(data, d3.scale.category10(), "#category10", "Category10");
+            render(data, d3.scale.category20(), "#category20", "Category20");
+            render(data, d3.scale.category20b(), "#category20b", "Category20b");
+            render(data, d3.scale.category20c(), "#category20c", "Category20c"); // <-G
+
+
+        });
+    </script>
+}
