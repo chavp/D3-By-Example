@@ -34,6 +34,10 @@ namespace D3_Learning.Controllers
         {
             return View();
         }
+        public ActionResult PlayingWithAxes()
+        {
+            return View();
+        }
 
         public JsonResult GetServiceStatus()
         {

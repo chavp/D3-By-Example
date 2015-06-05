@@ -244,6 +244,7 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\D3\FilteringWithData.cshtml" />
     <Content Include="Views\D3\UsingQuantitativeScales.cshtml" />
+    <Content Include="Views\D3\PlayingWithAxes.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

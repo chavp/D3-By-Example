@@ -44,7 +44,8 @@
               <ul class="dropdown-menu">
                 <li><a href='@Url.Action("WorkingWithArrays", "D3")'>Working with arrays</a></li>
                 <li><a href='@Url.Action("FilteringWithData", "D3")'>Filtering with data</a></li>
-                  <li><a href='@Url.Action("UsingQuantitativeScales", "D3")'>Using Quantitative Scales</a></li>
+                <li><a href='@Url.Action("UsingQuantitativeScales", "D3")'>Using Quantitative Scales</a></li>
+                <li><a href='@Url.Action("PlayingWithAxes", "D3")'>Playing With Axes</a></li>
               </ul>
             </li>
           </ul>
@@ -58,6 +59,8 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    @Scripts.Render("~/bundles/d3")
+
     @RenderSection("scripts", required: false)
 </body>
 </html>

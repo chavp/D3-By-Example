@@ -1,0 +1,205 @@
+﻿@{
+    ViewBag.Title = "Playing With Axes";
+}
+
+<style>
+    .axis text {
+      font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+</style>
+<h2>Playing With Axes</h2>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Working with basic axes</div>
+    <div class="panel-body">
+        <section class="btn-group">
+            <button type="button" class="btn btn-default" onclick="renderAll('bottom')">horizontal bottom</button>
+            <button type="button" class="btn btn-default" onclick="renderAll('top')">horizontal top</button>
+            <button type="button" class="btn btn-default" onclick="renderAll('left')">vertical left</button>
+            <button type="button" class="btn btn-default" onclick="renderAll('right')">vertical right</button>
+        </section>
+
+        <section id="working_with_basic_axes">
+            
+        </section>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Customizing ticks</div>
+    <div class="panel-body">
+        <section id="customizing_ticks"></section>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Drawing grid lines</div>
+    <div class="panel-body">
+        <section id="drawing_grid_lines" class="text-center"></section>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var height = 500,
+                width = 500,
+                margin = 25,
+                offset = 50,
+                axisWidth = width - 2 * margin,
+                svg;
+
+        function createSvg() { // <-A
+            svg = d3.select("#working_with_basic_axes").append("svg") // <-B
+            .attr("class", "axis") // <-C
+            .attr("width", width)
+            .attr("height", height);
+        }
+
+        function renderAxis(scale, i, orient) {
+            var axis = d3.svg.axis() // <-D
+                        .scale(scale) // <-E
+                        .orient(orient) // <-F
+                        .ticks(5); // <-G
+            svg.append("g")
+                .attr("transform", function(){ // <-H
+                    if(["top", "bottom"].indexOf(orient) >= 0)
+                        return "translate("+margin+","+i*offset+")";
+                    else
+                        return "translate(" + i * offset + ", " + margin + ")";
+                })
+            .call(axis); // <-I
+
+        }
+
+        function renderAll(orient) {
+            if (svg) svg.remove();
+
+            createSvg();
+
+            renderAxis(d3.scale.linear()
+            .domain([0, 1000])
+            .range([0, axisWidth]), 1, orient);
+            renderAxis(d3.scale.pow()
+            .exponent(2)
+            .domain([0, 1000])
+            .range([0, axisWidth]), 2, orient);
+            renderAxis(d3.time.scale()
+            .domain([new Date(2012, 0, 1), new Date()])
+            .range([0, axisWidth]), 3, orient);
+        }
+
+        function customizing_ticks() {
+            var height = 80,
+                width = 500,
+                margin = 25,
+                axisWidth = width - 2 * margin;
+
+            var svg = d3.select("#customizing_ticks")
+                        .append("svg")
+                        .attr("class", "axis")
+                        .attr("width", width)
+                        .attr("height", height);
+
+            var scale = d3.scale.linear()
+                        .domain([0, 100])
+                        .range([0, axisWidth]);
+
+            var axis = d3.svg.axis()
+                        .scale(scale)
+                        .ticks(5)
+                        .tickSubdivide(5) // <-A
+                        .tickPadding(10) // <-B
+                        .tickFormat(function (v) { // <-C
+                            return v + "%";
+                        });
+
+            svg.append("g")
+                .attr("transform", function () {
+                    return "translate(" + margin + "," + margin + ")";
+                })
+                .call(axis);
+        }
+
+        function drawing_grid_lines() {
+            var height = 500,
+                width = 500,
+                margin = 25;
+
+            var svg_2 = d3.select("#drawing_grid_lines")
+                        .append("svg")
+                        .attr("class", "axis")
+                        .attr("width", width)
+                        .attr("height", height);
+
+            function renderXAxis() {
+                var axisLength = width - 2 * margin;
+
+                var scale = d3.scale.linear()
+                    .domain([0, 100])
+                    .range([0, axisLength]);
+
+                var xAxis = d3.svg.axis()
+                            .scale(scale)
+                            .orient("bottom");
+
+                svg_2.append("g")
+                    .attr("class", "x-axis")
+                    .attr("transform", function () { // <-A
+                        return "translate(" + margin + "," + (height - margin)
+                        + ")";
+                    })
+                    .call(xAxis);
+
+                d3.selectAll("g.x-axis g.tick") // <-B
+                    .append("line") // <-C
+                    .classed("grid-line", true)
+                    .attr("x1", 0) // <-D
+                    .attr("y1", 0)
+                    .attr("x2", 0)
+                    .attr("y2", -(height - 2 * margin)); // <-E
+            }
+
+            function renderYAxis() {
+                var axisLength = height - 2 * margin;
+
+                var scale = d3.scale.linear()
+                            .domain([100, 0])
+                            .range([0, axisLength]);
+
+                var yAxis = d3.svg.axis()
+                    .scale(scale)
+                    .orient("left");
+
+                svg_2.append("g")
+                    .attr("class", "y-axis")
+                    .attr("transform", function () {
+                        return "translate(" + margin + "," + margin + ")";
+                    })
+                    .call(yAxis);
+
+                d3.selectAll("g.y-axis g.tick")
+                    .append("line")
+                    .classed("grid-line", true)
+                    .attr("x1", 0)
+                    .attr("y1", 0)
+                    .attr("x2", axisLength)
+                    .attr("y2", 0);
+            }
+
+            renderYAxis();
+            renderXAxis();
+        }
+
+        $(function () {
+            customizing_ticks();
+            drawing_grid_lines();
+        });
+    </script>
+}
