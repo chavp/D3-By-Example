@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "D3_Learning", "D3_Learning\D3_Learning.csproj", "{29F21DA0-D994-45C5-B90D-7B020BC214A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Natural.Models.Test", "Natural.Models.Test\Natural.Models.Test.csproj", "{CFEB6A77-B044-4F67-B998-8711168CF881}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{29F21DA0-D994-45C5-B90D-7B020BC214A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{29F21DA0-D994-45C5-B90D-7B020BC214A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29F21DA0-D994-45C5-B90D-7B020BC214A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFEB6A77-B044-4F67-B998-8711168CF881}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFEB6A77-B044-4F67-B998-8711168CF881}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFEB6A77-B044-4F67-B998-8711168CF881}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFEB6A77-B044-4F67-B998-8711168CF881}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

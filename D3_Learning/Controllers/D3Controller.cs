@@ -38,6 +38,10 @@ namespace D3_Learning.Controllers
         {
             return View();
         }
+        public ActionResult TransitionWithStyle()
+        {
+            return View();
+        }
 
         public JsonResult GetServiceStatus()
         {

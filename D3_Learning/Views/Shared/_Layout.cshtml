@@ -38,7 +38,11 @@
           <a class="navbar-brand" href="#"><i class="glyphicon glyphicon-home"></i> D3 by #:P</a>
         </div>
         <div class="navbar-collapse collapse">
+
           <ul class="nav navbar-nav">
+            <li>
+                <a href="@Url.Action("Index", "World")">World </a>
+            </li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Cookbook <b class="caret"></b></a>
               <ul class="dropdown-menu">
@@ -46,6 +50,7 @@
                 <li><a href='@Url.Action("FilteringWithData", "D3")'>Filtering with data</a></li>
                 <li><a href='@Url.Action("UsingQuantitativeScales", "D3")'>Using Quantitative Scales</a></li>
                 <li><a href='@Url.Action("PlayingWithAxes", "D3")'>Playing With Axes</a></li>
+                <li><a href='@Url.Action("TransitionWithStyle", "D3")'>Transition With Style</a></li>
               </ul>
             </li>
           </ul>

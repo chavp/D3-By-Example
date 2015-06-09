@@ -1,0 +1,472 @@
+﻿@{
+    ViewBag.Title = "TransitionWithStyle";
+}
+
+<style>
+    .box{
+        width: 300px;
+        height: 300PX;
+    }
+
+    .chart rect {
+      fill: steelblue;
+    }
+
+    .chart text {
+      fill: white;
+      font: 10px sans-serif;
+      text-anchor: middle;
+    }
+
+    .fixed-cell{
+        position: fixed;
+    }
+</style>
+<h2>Transition With Style</h2>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Animating a single element</div>
+    <div class="panel-body">
+        <section id="animating_a_single_element" class="text-center"></section>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Animating multiple elements</div>
+    <div class="panel-body">
+        <section id="animating_multiple_elements" class="text-center chart"></section>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Using ease</div>
+    <div class="panel-body">
+        <div id="using_ease" class="text-center"></div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Using tweening</div>
+    <div class="panel-body">
+        <div id="using_tweening" class="text-center"></div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Using transition chaining</div>
+    <div class="panel-body">
+        <div id="using_transition_chaining" class="text-center"></div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Using transition filter</div>
+    <div class="panel-body">
+        <div id="using_transition_filter" class="text-center"></div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Listening to transitional events</div>
+    <div class="panel-body">
+        <div id="listening_to_transitional_events" class="text-center"></div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Working with timer</div>
+    <div class="panel-body">
+        <div id="working_with_timer" class="text-center"></div>
+        <div class="control-group">
+            <button name="countup">
+                Start
+            </button>
+            <button name="reset">
+                Clear
+            </button>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+
+        function animating_a_single_element() {
+            var $animating_a_single_element = d3.select("#animating_a_single_element"),
+                duration = 5000;
+
+            $animating_a_single_element
+                .append("div")
+                .classed("box", true)
+                .style("background-color", "#e9967a") // <-B
+                .transition() // <-C
+                .duration(duration) // <-D
+                .style("background-color", "#add8e6") // <-E
+                .style("margin-left", "500px") // <-F
+                .style("width", "100px")
+                .style("height", "100px");
+        }
+
+        function animating_multiple_elements() {
+            var id = 0,
+                data = [],
+                duration = 500,
+                chartHeight = 100,
+                chartWidth = 680;
+
+            for (var i = 0; i < 20; i++) {
+                push(data);
+            }
+
+            function render(data) {
+                var selection = d3.select("#animating_multiple_elements")
+                    .selectAll("div.v-bar")
+                    .data(data, function (d) { return d.id; }); // <-A
+
+                // enter
+                selection.enter()
+                        .append("div")
+                        .attr("class", "v-bar")
+                        .style("position", "fixed")
+                        .style("top", chartHeight + "px")
+                        .style("left", function (d, i) {
+                            return barLeft(i + 1) + "px"; // <-B
+                        })
+                        .style("height", "0px") // <-C
+                        .append("span");
+
+
+                // update
+                selection
+                        .transition().duration(duration) // <-D
+                        .style("top", function (d) {
+                            return chartHeight - barHeight(d) + "px";
+                        })
+                        .style("left", function (d, i) {
+                            return barLeft(i) + "px";
+                        })
+                        .style("height", function (d) {
+                            return barHeight(d) + "px";
+                        })
+                        .select("span")
+                        .text(function (d) { return d.value; });
+
+
+                // exit
+                selection.exit()
+                    .transition().duration(duration) // <-E
+                    .style("left", function (d, i) {
+                        return barLeft(-1) + "px"; //<-F
+                    })
+                    .remove(); // <-G
+            }
+
+            function push(data) {
+                data.push({
+                    id: ++id,
+                    value: Math.round(Math.random() * chartHeight)
+                });
+            }
+
+            function barLeft(i) {
+                // start bar position is i * (barWidth + gap)
+                return i * (30 + 2);
+            }
+
+            function barHeight(d) {
+                return d.value;
+            }
+
+            setInterval(function () {
+                data.shift();
+                push(data);
+                render(data);
+            }, 2000);
+
+            render(data);
+
+            d3.select("#animating_multiple_elements")
+                .append("div")
+                .attr("class", "baseline")
+                .style("position", "fixed")
+                .style("top", chartHeight + "px")
+                .style("left", "0px")
+                .style("width", chartWidth + "px");
+        }
+
+        function animating_multiple_elements2() {
+            var id = 0,
+                data = [],
+                duration = 500,
+                width = 960,
+                height = 500;
+
+            for (var i = 0; i < 20; i++) {
+                push(data);
+            }
+
+            var y = d3.scale.linear()
+                        .range([height, 0]);
+
+            function push(data) {
+                data.push({
+                    id: ++id,
+                    value: Math.round(Math.random() * height)
+                });
+            }
+
+            function render(data) {
+                y.domain([0, d3.max(data, function (d) { return d.value; })]);
+
+                var barWidth = width / data.length;
+
+                var chart = d3.select("#animating_multiple_elements svg")
+                                .selectAll("rect")
+                                .data(data, function (d) { return d.id; });
+
+                // enter
+                chart.enter()
+                    .append("g")
+                    .attr("transform", function (d, i) { return "translate(" + i * barWidth + ", 0)"; })
+                    .append("rect")
+                    .attr("y", function (d) { return y(d.value); })
+                    .attr("height", function (d) { return height - y(d.value); })
+                    .attr("width", barWidth - 1);
+
+                chart.append("text")
+                    .attr("x", barWidth / 2)
+                    .attr("y", function (d) { return y(d.value) + 3; })
+                    .attr("dy", ".75em")
+                    .text(function (d) { return d.value; });
+
+                // update
+                chart.transition().duration(duration)
+                    .attr("y", function (d) { return y(d.value); })
+                    .attr("height", function (d) { return height - y(d.value); })
+                    .attr("width", barWidth - 1);
+
+                // exit
+                
+            }
+
+
+            d3.select("#animating_multiple_elements")
+                        .append("svg")
+                            .attr("width", width)
+                            .attr("height", height);
+
+            render(data);
+            //setInterval(function () {
+            //    data.shift();
+            //    push(data);
+            //    render(data);
+            //}, 2000);
+        }
+
+        function using_ease() {
+            var data = [ // <-A
+                "linear", "cubic", "cubic-in-out",
+                "sin", "sin-out", "exp", "circle", "back",
+                "bounce",
+                function (t) { // <-B
+                    return t * t;
+                }
+            ],
+            colors = d3.scale.category10();
+
+            var selection = d3.select("#using_ease").selectAll("div")
+                .data(data);
+            
+            selection.enter()
+                .append("div")
+                .attr("class", "fixed-cell")
+                .style("top", function (d, i) {
+                    return i * 60 + "px";
+                })
+                .style("background-color", function (d, i) {
+                    return colors(i);
+                })
+                .style("color", "white")
+                .style("left", "600px")
+                .text(function (d) {
+                    if (typeof d === 'function') return "custom";
+                    return d;
+                });
+
+            selection.each(function (d) {
+                d3.select(this)
+                    .transition().ease(d) // <-D
+                    .duration(2000)
+                    .style("left", "10px");
+            });
+        }
+
+        function using_tweening() {
+            var using_tweening = d3.select("#using_tweening"),
+                duration = 5000;
+
+            using_tweening.append("div").append("input")
+                .attr("type", "button")
+                .attr("class", "btn btn-primary")
+                .attr("value", "0")
+                .style("width", "150px")
+                .transition().duration(duration).ease("linear")
+                .style("width", "400px")
+                .attr("value", "9");
+
+            using_tweening.append("div").append("input")
+                .attr("type", "button")
+                .attr("class", "btn btn-danger")
+                .attr("value", "0")
+                .transition().duration(duration).ease("linear")
+                .styleTween("width", widthTween) // <- A
+                .attrTween("value", valueTween); // <- B
+
+            function widthTween(a) {
+                var interpolate = d3.scale.quantize()
+                    .domain([0, 1])
+                    .range([150, 200, 250, 350, 400]);
+                return function (t) {
+                    return interpolate(t) + "px";
+                };
+            }
+
+            function valueTween() {
+                var interpolate = d3.scale.quantize() // <-C
+                    .domain([0, 1])
+                    .range([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+                return function (t) { // <-D
+                    return interpolate(t);
+                };
+            }
+        }
+
+        function using_transition_chaining() {
+            var body = d3.select("#using_transition_chaining");
+
+            function teleport(s) {
+                s.transition().duration(300) // <-A
+                    .style("width", "200px")
+                    .style("height", "1px")
+                .transition().duration(100) // <-B
+                    .style("left", "600px")
+                .transition().duration(300) // <-C
+                    .style("left", "800px")
+                    .style("height", "80px")
+                    .style("width", "80px");
+            }
+
+            body.append("div")
+                //.style("position", "fixed")
+                .style("background-color", "steelblue")
+                .style("left", "10px")
+                .style("width", "80px")
+                .style("height", "80px")
+                .call(teleport); // <-D
+        }
+
+        function using_transition_filter() {
+            var data = ["Cat", "Dog", "Cat", "Dog", "Cat", "Dog", "Cat", "Dog"],
+                duration = 1500;
+
+            var selection = d3.select("#using_transition_filter").selectAll("div")
+                .data(data);
+
+            // enter
+            selection.enter()
+                .append("div")
+                .attr("class", "fixed-cell")
+                .style("top", function (d, i) {
+                    return i * 40 + "px";
+                })
+                .style("background-color", "steelblue")
+                .style("color", "white")
+                .style("left", "500px")
+                .text(function (d) {
+                    return d;
+                })
+                .transition() // <- A
+                .duration(duration)
+                .style("left", "10px")
+                .filter(function (d) { return d == "Cat"; }) // <- B
+                .transition() // <- C
+                .duration(duration)
+                .style("left", "500px");
+        }
+
+        function listening_to_transitional_events() {
+            var body = d3.select("#listening_to_transitional_events"),
+                duration = 3000;
+
+            var div = body.append("div")
+                        .classed("box", true)
+                        .style("background-color", "steelblue")
+                        .style("color", "white")
+                        .text("waiting") // <-A
+                        .transition().duration(duration) // <-B
+                        .delay(1000) // <-C
+                        .each("start", function () { // <-D
+                            console.log(arguments);
+
+                            d3.select(this).text(function (d, i) {
+                                return "transitioning";
+                            }).style("background-color", "red");
+                        })
+                        .each("end", function () { // <-E
+                            d3.select(this).text(function (d, i) {
+                                return "done";
+                            }).style("background-color", "green");
+                        })
+            .style("margin-left", "600px");
+
+        }
+
+        function working_with_timer() {
+            var body = d3.select("#working_with_timer");
+
+            var countdown = body.append("div").append("input");
+
+            countdown.attr("type", "button")
+                    .attr("class", "countdown")
+                    .attr("value", "0");
+
+            function countup(target) { // <-A
+                d3.timer(function () { // <-B
+                    var value = countdown.attr("value");
+                    if (value == target) return true; // <-C
+                    countdown.attr("value", ++value); // <-D
+                });
+            }
+
+            function reset() {
+                countdown.attr("value", 0);
+            }
+
+            $("button[name='countup']").click(function () {
+                countup(100);
+            });
+            $("button[name='reset']").click(function () {
+                reset();
+            });
+        }
+
+
+        $(function () {
+            animating_a_single_element();
+            //animating_multiple_elements();
+            animating_multiple_elements2();
+
+            using_ease();
+
+            using_tweening();
+
+            using_transition_chaining();
+
+            using_transition_filter();
+
+            listening_to_transitional_events();
+
+            working_with_timer();
+        });
+    </script>
+}
