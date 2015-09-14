@@ -126,14 +126,18 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\CFDController.cs" />
     <Compile Include="Controllers\D3Controller.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InActionController.cs" />
     <Compile Include="Controllers\WorldController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\BusBreakdownAccidentAndInjuryView.cs" />
+    <Compile Include="Models\DailyTimesheet.cs" />
     <Compile Include="Models\PlazaTrafficView.cs" />
+    <Compile Include="Models\RevenueViewModel.cs" />
     <Compile Include="Models\ServiceStatusView.cs" />
     <Compile Include="Models\SubwayWaitStatisticView.cs" />
     <Compile Include="Models\SubwayWaitView.cs" />
@@ -142,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\data\some_data.json" />
+    <Content Include="Content\data\tweets.json" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
@@ -203,6 +208,15 @@
     <Content Include="Scripts\bootstrap-3.1.1-dist\fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Scripts\bootstrap-3.1.1-dist\fonts\glyphicons-halflings-regular.ttf" />
     <Content Include="Scripts\bootstrap-3.1.1-dist\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="Content\data\cities.csv" />
+    <Content Include="Content\data\worldcup.csv" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\css\bootstrap-theme.css.map" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\css\bootstrap.css.map" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\fonts\glyphicons-halflings-regular.woff2" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
     <Content Include="Scripts\bootstrap-3.1.1-dist\css\bootstrap-theme.css" />
     <Content Include="Scripts\bootstrap-3.1.1-dist\css\bootstrap-theme.min.css" />
@@ -211,6 +225,13 @@
     <Content Include="Scripts\bootstrap-3.1.1-dist\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Scripts\bootstrap-3.1.1-dist\js\bootstrap.js" />
     <Content Include="Scripts\bootstrap-3.1.1-dist\js\bootstrap.min.js" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\css\bootstrap-theme.css" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\css\bootstrap-theme.min.css" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\css\bootstrap.css" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\css\bootstrap.min.css" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\js\bootstrap.js" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\js\bootstrap.min.js" />
+    <Content Include="Scripts\bootstrap-3.3.5-dist\js\npm.js" />
     <Content Include="Scripts\d3.js" />
     <Content Include="Scripts\d3.min.js" />
     <Content Include="Scripts\jquery-1.8.2.js" />
@@ -248,6 +269,10 @@
     <Content Include="Views\D3\PlayingWithAxes.cshtml" />
     <Content Include="Views\D3\TransitionWithStyle.cshtml" />
     <Content Include="Views\World\Index.cshtml" />
+    <Content Include="Views\D3\D3UX.cshtml" />
+    <Content Include="Views\InAction\Index.cshtml" />
+    <Content Include="Views\CFD\Index.cshtml" />
+    <Content Include="Views\InAction\WorldCup.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

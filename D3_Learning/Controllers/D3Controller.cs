@@ -272,5 +272,10 @@ namespace D3_Learning.Controllers
             }
             return Json(results.SubwayWaitStatistics, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult D3UX()
+        {
+            return View();
+        }
     }
 }

@@ -1,0 +1,244 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<style>
+    xx{
+        background-color: red;
+
+    }
+
+    .inactive, .tentative {
+        stroke: darkgray;
+        stroke-width: 2px;
+        stroke-dasharray: 5 5;
+    }
+    .tentative {
+    
+    }
+    .active {
+        stroke: black;
+        stroke-width: 4px;
+        stroke-dasharray: 1;
+    }
+    circle {
+        fill: red;
+    }
+
+    rect {
+        fill: darkgray;
+    }
+
+    .box{
+        float: left;
+        width: 10px;
+        height: 50px;
+    }
+</style>
+<h2>Chapter 1</h2>
+
+<h4>Cities</h4>
+<div id="citiesViz">
+</div>
+
+<hr />
+
+
+<h4>His Cities</h4>
+<div id="citiesHisViz">
+</div>
+
+<hr />
+
+<div id="someDiv" style="width:200px;height:100px;border:black 1px solid;">
+    <input id="someCheckbox" type="checkbox" />
+</div>
+
+<hr />
+
+<h4>A sample web page with SVG elements</h4>
+<div id="infovizDiv">
+    <svg style="width:500px;height:500px;border:1px lightgray solid;">
+        <path d="M 10,60 40,30 50,50 60,30 70,80"
+              style="fill:black;stroke:gray;stroke-width:4px;" />
+        <polygon style="fill:gray;"
+                 points="80,400 120,400 160,440 120,480 60,460" />
+        <g>
+            <line x1="200" y1="100" x2="450" y2="225"
+                  style="stroke:black;stroke-width:2px;" />
+
+            <g transform="translate(200,100) scale(2)">
+                <text stroke="fill:red">555</text>
+                <circle r="30" />
+            </g>
+
+            <rect x="410" y="200" width="100" height="50"
+                  style="fill:pink;stroke:black;stroke-width:1px;" />
+        </g>
+    </svg>
+</div>
+<button onclick="active_circle()">Active Circle</button>
+<button onclick="inactive_circle()">Active Circle</button>
+
+<hr />
+
+<h4>A sample web page with a style sheet</h4>
+<div id="infovizDiv">
+    <svg style="width:500px;height:500px;border:1px lightgray solid;">
+        <path d="M 10,60 40,30 50,50 60,30 70,80" />
+        <polygon class="inactive" points="80,400 120,400 160,440 120,480 60,460" />
+        <g>
+            <circle class="active tentative" cy="100" cx="200" r="30" />
+            <rect class="active" x="410" y="200" width="100" height="50" />
+        </g>
+    </svg>
+
+</div>
+
+<hr />
+<h4>SVG elements with IDs and transparency</h4>
+<div id="drawElemnt">
+
+</div>
+<hr />
+<h4>([0, 100], ["red", "green"])</h4>
+<div id="drawColor" class="row">
+
+</div>
+
+@section scripts{
+    <script>
+
+        function active_circle() {
+            d3.select("circle").classed("active", true);
+        }
+
+        function inactive_circle() {
+            d3.select("circle").classed("active", false);
+        }
+
+        $(function () {
+            d3.select("#someDiv").style("border", "5px darkgray dashed");
+            //d3.select("#someDiv").style("background-color", "red").html("Something else maybe");
+            d3.select("#someDiv").attr("id", "newID");
+            d3.select("#someCheckbox").property("checked", true);
+            
+            d3.select("#someDiv")
+                .on("click", function () {
+                    console.log("on click");
+            });
+            //$("#someDiv").css("border", "5px darkgray dashed");
+            //$("#someDiv").attr("id", "newID");
+            //$("#someCheckbox").prop("checked", true);
+
+            d3.select("svg").style("background", "darkgray");
+            
+
+            d3.select("#drawElemnt")
+                .append("svg")
+                .append("circle")
+                .attr("id", "a")
+                .attr("r", 20)
+                .attr("cx", 20)
+                .attr("cy", 20)
+                .style("fill", "red");
+
+            //d3.select("#a")
+            //    .transition()
+            //    .duration(2000)
+            //    .style("opacity", 0.4);
+
+            d3.select("#a")
+                .transition()
+                .duration(3000)
+                .attr("cy", 200);
+
+            d3.csv("@Url.Content("~/Content/data/cities.csv")",
+                function (data) {
+                    var minPop = d3.min(data, function (d) { return +d.population; }),
+                        maxPop = d3.max(data, function (d) { return +d.population; }),
+                        meanPop = d3.mean(data, function (d) { return +d.population; }),
+                        extentPop = d3.extent(data, function (d) { return +d.population; });
+
+                    console.log("min population: " + minPop);
+                    console.log("max population: " + maxPop);
+                    console.log("mean population: " + meanPop);
+                    console.log("extent population: " + extentPop);
+
+                    d3.select("#citiesViz")
+                        .selectAll("div.cities")
+                        .data(data)
+                        .enter()
+                        .append("div")
+                        .classed("cities", true)
+                        .html(function (d) { return "" + d.label + '<span class="badge">' + d.population + '</span>'; });
+
+                    var width = 600,
+                        height = 300;
+
+                    var data = [15, 50, 22, 8, 100, 10];
+
+                    var yScale = d3.scale.linear()
+                        .domain(d3.extent(data))
+                        .range([0, height]);
+
+                    var xScale = d3.scale.linear()
+                        .domain([0, data.length])
+                        .range([height, 0]);
+
+                    d3.select('#citiesHisViz')
+                        .append('svg')
+                        .attr('width', width)
+                        .attr('height', height)
+                        .selectAll('g rect')
+                        .data(data)
+                        .enter()
+                        .append('g')
+                        .append('rect')
+                        .attr('x', function (d, i) { return i * 53; })
+                        .attr('y', function (d, i) { return height - yScale(d); })
+                        .attr('width', 50)
+                        .attr('height', function (d, i) { return yScale(d); })
+                        .style("fill", "blue")
+                        .style("stroke", "red")
+                        .style("stroke-width", "1px")
+                        .style("opacity", .25)
+                        ;
+                });
+
+            d3.json("@Url.Content("~/Content/data/tweets.json")",
+                function (data) {
+                    //console.log(data)
+                    var tweetData = data.tweets;
+                    var nestedTweets = d3.nest()
+                        .key(function (el) { return el.user })
+                        .entries(tweetData);
+
+                    console.log(nestedTweets)
+                }
+            );
+
+            var newRamp = d3.scale.linear().domain([1000, 9999]).range([0, 500]);
+            //console.log(newRamp.invert(100));
+            //console.log(newRamp(2799.8));
+
+            var newColor = d3.scale.linear().domain([0, 50]).range(["red", "green"]);
+
+            for (var i = 0; i <= 100; i++) {
+                d3.select("#drawColor")
+                    .append("div")
+                    .classed("box", true)
+                    .style("background", newColor(i));
+
+                //console.log(newColor(i));
+            }
+
+            var sampleArray = [423, 124, 66, 424, 58, 10, 900, 44, 1];
+            var qScaleName = d3.scale.quantile().domain(sampleArray).range(["small", "medium", "large"]);
+
+            for (var i = 0; i <= 1000; i++) {
+                console.log(qScaleName(i));
+            }
+        });
+    </script>
+}

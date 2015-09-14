@@ -1,0 +1,226 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<style>
+    svg {
+  font: 10px sans-serif;
+  shape-rendering: crispEdges;
+}
+
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: gray;
+    }
+    rect.pane {
+      cursor: move;
+      fill: none;
+      pointer-events: all;
+    }
+
+    .area {
+        fill: lightsteelblue;
+        stroke-width: 0;
+    }
+
+</style>
+<h2>CFD</h2>
+<hr />
+
+<div id="chart-cfd">
+
+    <button id="pop-action">Pop</button>
+</div>
+
+@section scripts{
+    <script>
+        $(function () {
+            d3.select("#chart-cfd");
+
+            var theData = [];
+            var format = d3.time.format("%d/%m/%Y");
+
+            d3.json(
+                "@Url.Action("GetTimeSeriesData", "CFD")",
+                function (data) {
+                    //console.log(data);
+                    theData = data;
+
+                    data.forEach(function (d) {
+                        d.forDay = format.parse(d.DayFormat);
+                        d.Amount = +d.Amount;
+                        d.Amount2 = +d.Amount2;
+                        d.Amount3 = +d.Amount3;
+                        d.Amount4 = +d.Amount4;
+                    });
+
+                    var maxRev = d3.max(data, function (el) { return el.Amount; });
+                    var startEnd = d3.extent(data, function (el) {
+                        return el.forDay;
+                    });
+
+                    var margin = { top: 20, right: 20, bottom: 30, left: 40 },
+                        width = 1000 - margin.left - margin.right,
+                        height = 460 - margin.top - margin.bottom;
+
+                    startEnd = [new Date(2014, 1, 1), startEnd[1]];
+                    var timeRamp = d3.time.scale().domain(startEnd).range([0, width]);
+                    //var yScale = d3.scale.linear().domain([0, 1.5 * maxRev]).range([height, 0]);
+                    var yScale = d3.scale.linear().range([height, 0]);
+
+                    //var radiusScale = d3.scale.linear().domain([0, maxRev]).range([3, 5]);
+                    //var colorScale = d3.scale.linear().domain([0, maxRev]).range(["white", "#990000"]);
+
+                    console.log(data.length);
+
+                    var zoom = d3.behavior.zoom()
+                        .x(timeRamp)
+                        //.y(yScale)
+                        .scaleExtent([1, 100])
+                        .on("zoom", zoomed);
+
+                    var stack = d3.layout.stack()
+                          .offset("zero")
+                          .values(function (d) { return d.values; })
+                          .x(function (d) { return timeRamp(d.label); })
+                          .y(function (d) { return d.value; });
+
+                    var area2 = d3.svg.area()
+                      .interpolate("cardinal")
+                      .x(function (d) { return timeRamp(d.forDay); })
+                      .y0(function (d) { return yScale(d.y0); })
+                      .y1(function (d) { return yScale(d.y0 + d.y); });
+
+                    var labelVar = 'forDay';
+                    var colors = d3.scale.category10();
+                    var varNames = ["Amount", "Amount2", "Amount3", "Amount4"];
+                    colors.domain(varNames);
+                    var seriesArr = [], series = {};
+                    varNames.forEach(function (name) {
+                        series[name] = {
+                            name: name,
+                            values: []
+                        };
+                        seriesArr.push(series[name]);
+                    });
+                    data.forEach(function (d) {
+                        varNames.map(function (name) {
+                            series[name].values.push(
+                                {
+                                    label: d[labelVar],
+                                    value: +d[name]
+                                });
+                        });
+                    });
+
+                    yScale.domain([0, 1.5 * maxRev]);
+                    //yScale.domain([0, d3.max(seriesArr, function (c) {
+                    //    return d3.max(c.values, function (d) { return d.y0 + d.y; });
+                    //})]);
+
+                    stack(seriesArr);
+
+                    console.log(seriesArr);
+
+                    var area = d3.svg.area()
+                        .interpolate("step-after")
+                        .x(function (d) { return timeRamp(d.forDay); })
+                        .y0(yScale(0))
+                        .y1(function (d) { return yScale(d.Amount); });
+
+                    //console.log(yScale(0));
+
+                    var line = d3.svg.line()
+                        .interpolate("basis")
+                        .x(function (d) { return timeRamp(d.forDay); })
+                        .y(function (d) { return yScale(d.Amount); });
+
+                    var xAxis = d3.svg.axis()
+                        .scale(timeRamp)
+                        .orient("bottom")
+                        .tickSize(-height, 0)
+                        .tickPadding(6);
+                        //.ticks(d3.time.weeks)
+                        //.tickFormat(format);
+
+                    var yAxis = d3.svg.axis()
+                        .scale(yScale)
+                        .orient("left")
+                        .ticks(5)
+                        .tickSize(-width)
+                        .tickPadding(6);
+
+                    function zoomed(e) {
+
+                        svg.select(".x.axis").call(xAxis);
+                        svg.select(".y.axis").call(yAxis);
+
+                        svg.select("path.area").attr("d", area);
+
+                        //svg.select("circle").attr("d", revStream);
+
+                    }
+
+                    var svg = d3.select('#chart-cfd')
+                        .append("svg")
+                        .attr('width', width + margin.left + margin.right)
+                        .attr('height', height + margin.top + margin.bottom)
+                        .append("g")
+                        .attr("transform", "translate(" + margin.left + "," + margin.right + ")");
+
+                    //console.log(yScale(maxRev));
+
+                    svg.append("clipPath")
+                        .attr("id", "clip")
+                      .append("rect")
+                        .attr("x", timeRamp(startEnd[0]))
+                        .attr("y", yScale(maxRev))
+                        .attr("width", timeRamp(startEnd[1]) - timeRamp(startEnd[0]))
+                        .attr("height", yScale(0) - yScale(maxRev));
+
+                    svg.append("path")
+                        .datum(data)
+                        .attr("class", "area")
+                        .attr("clip-path", "url(#clip)")
+                        .attr("d", area);
+
+                    //var selection = svg.selectAll(".series")
+                    //     .data(seriesArr)
+                    //     .enter()
+                    //    .append("g")
+                    //    .attr("class", "series");
+
+                    //selection.append("path")
+                    //  .attr("class", "streamPath")
+                    //  .attr("d", function (d) { return area2(d.values); })
+                    //  .style("fill", function (d) { return colors(d.name); })
+                    //  .style("stroke", "grey");
+
+                    svg.append("path")
+                        .attr("class", "line")
+                        .attr("clip-path", "url(#clip)");
+
+                    svg.append("g")
+                        .attr("class", "x axis")
+                        .attr("transform", "translate(0," + height + ")")
+                        .call(xAxis);
+
+                    svg.append("g")
+                        .attr("class", "y axis")
+                        .call(yAxis);
+
+                    svg.append("rect")
+                        .attr("class", "pane")
+                        .attr("width", width)
+                        .attr("height", height)
+                        .call(zoom);
+
+                    zoom.x(timeRamp);
+
+                    svg.select("path.area").data([data]);
+
+            });
+        });
+    </script>
+}

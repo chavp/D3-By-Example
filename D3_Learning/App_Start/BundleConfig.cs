@@ -27,10 +27,10 @@ namespace D3_Learning
                         "~/Scripts/d3*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                        "~/Scripts/bootstrap-3.1.1-dist/js/bootstrap*"));
+                        "~/Scripts/bootstrap-3.3.5-dist/js/bootstrap*"));
 
             bundles.Add(new StyleBundle("~/Content/css")
-                .Include("~/Scripts/bootstrap-3.1.1-dist/css/bootstrap*"));
+                .Include("~/Scripts/bootstrap-3.3.5-dist/css/bootstrap*"));
 
             bundles.Add(new StyleBundle("~/Content/themes/base/css").Include(
                         "~/Content/themes/base/jquery.ui.core.css",
