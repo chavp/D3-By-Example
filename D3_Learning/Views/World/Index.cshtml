@@ -14,6 +14,13 @@
       stroke-opacity: 0.1;
       shape-rendering: crispEdges;
     }
+
+    rect.pane {
+      cursor: move;
+      fill: none;
+      pointer-events: all;
+    }
+
 </style>
 
 <ol class="breadcrumb">
@@ -75,6 +82,8 @@
                     .attr("y1", 0)
                     .attr("x2", 0)
                     .attr("y2", -(height - 2 * margin)); // <-E
+
+                return xAxis;
             }
 
             function renderYAxis() {
@@ -96,16 +105,20 @@
                     .attr("y1", 0)
                     .attr("x2", yAxisLength)
                     .attr("y2", 0);
+
+                return yAxis;
             }
 
-            renderYAxis();
-            renderXAxis();
+            var yAxis = renderYAxis();
+            var xAxis = renderXAxis();
 
             var data = [
                 { id: 1, x: 10, y: 20, m: 10 }
             ];
 
-            var selection = svg.selectAll("cycle").data(data, function (d) { return d.id; });
+            var selection = svg
+                .selectAll("circle")
+                .data(data, function (d) { return d.id; });
 
             // enter
             selection.enter()
@@ -120,6 +133,24 @@
 
             // exit
             selection.exit().remove();
+
+            //var zoom = d3.behavior.zoom()
+            //           .x(xScale)
+            //           .y(yScale)
+            //           .scaleExtent([1, 100])
+            //           .on("zoom", zoomed);
+
+            //function zoomed(e) {
+
+            //    svg.select("g.x-axis").call(xAxis);
+            //    svg.select("g.y-axis").call(yAxis);
+            //}
+
+            //svg.append("rect")
+            //    .attr("class", "pane")
+            //    .attr("width", width)
+            //    .attr("height", height)
+            //    .call(zoom);
         });
     </script>
 }

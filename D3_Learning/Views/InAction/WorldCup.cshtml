@@ -108,6 +108,20 @@
                     //});
 
                 };
+
+                d3.text("@Url.Content("~/Content/resources/modal.html")",
+                    function (data) {
+                    d3.select("body").append("div").attr("id", "modal").html(data);
+                });
+
+                teamG.on("click", teamClick);
+
+                function teamClick(d) {
+                    d3.selectAll("td.data").data(d3.values(d))
+                    .html(function (p) {
+                        return p
+                    });
+                };
             });
         });
     </script>

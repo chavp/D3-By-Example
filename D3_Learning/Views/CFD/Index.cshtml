@@ -19,9 +19,15 @@
       pointer-events: all;
     }
 
-    .area {
+    path.area {
         fill: lightsteelblue;
         stroke-width: 0;
+    }
+
+    path.line {
+      fill: none;
+      stroke: #666;
+      stroke-width: 1.5px;
     }
 
 </style>
@@ -86,11 +92,11 @@
                           .x(function (d) { return timeRamp(d.label); })
                           .y(function (d) { return d.value; });
 
-                    var area2 = d3.svg.area()
-                      .interpolate("cardinal")
-                      .x(function (d) { return timeRamp(d.forDay); })
-                      .y0(function (d) { return yScale(d.y0); })
-                      .y1(function (d) { return yScale(d.y0 + d.y); });
+                    //var area2 = d3.svg.area()
+                    //  .interpolate("cardinal")
+                    //  .x(function (d) { return timeRamp(d.forDay); })
+                    //  .y0(function (d) { return yScale(d.y0); })
+                    //  .y1(function (d) { return yScale(d.y0 + d.y); });
 
                     var labelVar = 'forDay';
                     var colors = d3.scale.category10();
@@ -114,7 +120,7 @@
                         });
                     });
 
-                    yScale.domain([0, 1.5 * maxRev]);
+                    yScale.domain([0, 2*maxRev]);
                     //yScale.domain([0, d3.max(seriesArr, function (c) {
                     //    return d3.max(c.values, function (d) { return d.y0 + d.y; });
                     //})]);
@@ -123,23 +129,39 @@
 
                     console.log(seriesArr);
 
-                    var area = d3.svg.area()
-                        .interpolate("step-after")
+                    // An area generator, for the light fill.
+                    var area2 = d3.svg.area()
+                        .interpolate("monotone")
                         .x(function (d) { return timeRamp(d.forDay); })
+                        .y(function (d) { return yScale(d.Amount + d.Amount2); })
+                        .y0(function (d) { return yScale(d.Amount); });
+
+                    //console.log(yScale(3000));
+                    var area = d3.svg.area()
+                        .x(function (d) { return timeRamp(d.forDay); })
+                        .y(function (d) { return yScale(d.Amount); })
                         .y0(yScale(0))
-                        .y1(function (d) { return yScale(d.Amount); });
+                        .interpolate("monotone");
 
                     //console.log(yScale(0));
 
                     var line = d3.svg.line()
-                        .interpolate("basis")
                         .x(function (d) { return timeRamp(d.forDay); })
-                        .y(function (d) { return yScale(d.Amount); });
+                        .y(function (d) { return yScale(d.Amount); })
+                        .interpolate("monotone");
+
+                    function getFormat() {
+                        if (dateDif < 25) {
+                            return d3.time.format('%H:%M');
+                        } else {
+                            return d3.time.format('%d/%m %H:%M');
+                        }
+                    }
 
                     var xAxis = d3.svg.axis()
                         .scale(timeRamp)
                         .orient("bottom")
-                        .tickSize(-height, 0)
+                        .tickSize(-height)
                         .tickPadding(6);
                         //.ticks(d3.time.weeks)
                         //.tickFormat(format);
@@ -156,8 +178,10 @@
                         svg.select(".x.axis").call(xAxis);
                         svg.select(".y.axis").call(yAxis);
 
-                        svg.select("path.area").attr("d", area);
+                        svg.select("path.area").attr("d", area(data));
+                        svg.select("path.area2").attr("d", area2(data));
 
+                        svg.select("path.line").attr("d", line);
                         //svg.select("circle").attr("d", revStream);
 
                     }
@@ -177,13 +201,23 @@
                         .attr("x", timeRamp(startEnd[0]))
                         .attr("y", yScale(maxRev))
                         .attr("width", timeRamp(startEnd[1]) - timeRamp(startEnd[0]))
-                        .attr("height", yScale(0) - yScale(maxRev));
+                        .attr("height", yScale(0) - yScale(2*maxRev));
 
                     svg.append("path")
-                        .datum(data)
+                        .attr("d", area(data))
                         .attr("class", "area")
-                        .attr("clip-path", "url(#clip)")
-                        .attr("d", area);
+                        .attr("clip-path", "url(#clip)");
+
+                    svg.append("path")
+                        .attr("d", area2(data))
+                        .attr("class", "area2")
+                        .attr("clip-path", "url(#clip)");
+
+                    //svg.append("path")
+                    //    .datum(data)
+                    //    .attr("class", "area2")
+                    //    .attr("clip-path", "url(#clip)")
+                    //    .attr("d", area2);
 
                     //var selection = svg.selectAll(".series")
                     //     .data(seriesArr)
@@ -198,8 +232,10 @@
                     //  .style("stroke", "grey");
 
                     svg.append("path")
+                        .datum(data)
                         .attr("class", "line")
-                        .attr("clip-path", "url(#clip)");
+                        .attr("clip-path", "url(#clip)")
+                        .attr("d", line);
 
                     svg.append("g")
                         .attr("class", "x axis")

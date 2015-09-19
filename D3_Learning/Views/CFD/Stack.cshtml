@@ -1,0 +1,172 @@
+﻿@{
+    ViewBag.Title = "Stack";
+}
+
+<style>
+    .axis path,
+    .axis line {
+      fill: none;
+      stroke: gray;
+    }
+    rect.pane {
+      cursor: move;
+      fill: none;
+      pointer-events: all;
+    }
+
+    path.area {
+        fill: lightsteelblue;
+        stroke-width: 0;
+    }
+
+    path.line {
+      fill: none;
+      stroke: #666;
+      stroke-width: 1.5px;
+    }
+</style>
+
+<h2>Stack</h2>
+
+<hr />
+
+<svg></svg>
+
+@section scripts{
+    <script>
+        $(function () {
+            d3.json("@Url.Action("GetTimesheetCostDays", "CFD")", dataViz);
+
+            function dataViz(data) {
+                //console.log(data);
+
+                var margin = { top: 20, right: 20, bottom: 30, left: 70 },
+                    width = 1000 - margin.left - margin.right,
+                    height = 460 - margin.top - margin.bottom;
+
+                var svg = d3.select('svg')
+                        .attr('width', width + margin.left + margin.right)
+                        .attr('height', height + margin.top + margin.bottom)
+                        .append('g')
+                        .attr('transform', 'translate(' + margin.left + ',' + margin.right + ')');
+
+                var format = d3.time.format("%d/%m/%Y");
+
+                data.forEach(function (d) {
+                    d.ForDay = format.parse(d.DayFormat);
+                });
+
+                var expData = data;
+                var stackData = [];
+
+                var startEnd = d3.extent(data, function (el) {
+                    return el.ForDay;
+                });
+
+                var maxY = 110000;
+                var xScale = d3.time.scale().domain(startEnd).range([0, width]);
+                var yScale = d3.scale.linear().domain([0, maxY]).range([height, 0]);
+
+                var phaseColors = d3.scale
+                    .category10(["PreSale", "Implement", "Operation", "Warranty"]);
+
+                
+                for (x in data[0]) {
+                    if (x != "Day" && x != "DayFormat" && x != "ForDay") {
+                        var newObject = {
+                            name: x.replace("Cost", ""),
+                            values: []
+                        };
+                        for (y in data) {
+                            newObject.values.push({
+                                x: data[y]["ForDay"],
+                                y: +data[y][x]
+                            });
+                        };
+                        stackData.push(newObject);
+                    }
+                }
+
+                var stackArea = d3.svg.area()
+                        .interpolate("basis")
+                        .x(function (d) { return xScale(d.x); })
+                        .y0(function (d) { return yScale(d.y0); })
+                        .y1(function (d) { return yScale(d.y0 + d.y); });
+
+                stackLayout = d3.layout.stack()
+                    //.offset("silhouette")
+                    //.order("inside-out")
+                    .values(function (d) { return d.values; });
+
+                //stackArea.interpolate("basis");
+                stackArea.interpolate("step");
+                svg.selectAll("path")
+                    .data(stackLayout(stackData))
+                    .enter()
+                    .append("path")
+                    .attr("class", "area")
+                    .style("fill", function (d) { return phaseColors(d.name); })
+                    .attr("d", function (d) { return stackArea(d.values); })
+                    .attr("clip-path", "url(#clip)");
+
+                var xAxis = d3.svg.axis()
+                        .scale(xScale)
+                        .orient("bottom")
+                        .tickSize(-height)
+                        .tickPadding(6);
+                //.ticks(d3.time.weeks)
+                //.tickFormat(format);
+
+                var yAxis = d3.svg.axis()
+                    .scale(yScale)
+                    .orient("left")
+                    .ticks(5)
+                    .tickSize(-width)
+                    .tickPadding(6);
+
+                svg.append("g")
+                        .attr("class", "x axis")
+                        .attr("transform", "translate(0," + height + ")")
+                        .call(xAxis);
+
+                svg.append("g")
+                    .attr("class", "y axis")
+                    .call(yAxis);
+
+                svg.append("clipPath")
+                        .attr("id", "clip")
+                      .append("rect")
+                        .attr("x", xScale(startEnd[0]))
+                        .attr("y", yScale(maxY))
+                        .attr("width", xScale(startEnd[1]) - xScale(startEnd[0]))
+                        .attr("height", yScale(0) - yScale(maxY));
+
+                function zoomed(e) {
+
+                    svg.select(".x.axis").call(xAxis);
+                    svg.select(".y.axis").call(yAxis);
+
+                    svg.selectAll("path.area").style("fill", function (d) { return phaseColors(d.name); });
+                    svg.selectAll("path.area").attr("d", function (d) { return stackArea(d.values); });
+                    //svg.select("circle").attr("d", revStream);
+
+                }
+
+                var zoom = d3.behavior.zoom()
+                        .x(xScale)
+                        //.y(yScale)
+                        .scaleExtent([1, 100])
+                        .on("zoom", zoomed);
+
+                svg.append("rect")
+                        .attr("class", "pane")
+                        .attr("width", width)
+                        .attr("height", height)
+                        .call(zoom);
+
+                //zoom.x(xScale);
+                //console.log(stackData);
+            }
+        });
+    </script>
+}

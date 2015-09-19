@@ -20,5 +20,20 @@ namespace D3_Learning.Controllers
         {
             return View();
         }
+
+        public ActionResult ChartComponent()
+        {
+            return View();
+        }
+
+        public ActionResult LineChart()
+        {
+            return View();
+        }
+
+        public ActionResult ComplexAccessorFunctions()
+        {
+            return View();
+        }
     }
 }
