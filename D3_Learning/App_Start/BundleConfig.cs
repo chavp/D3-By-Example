@@ -25,7 +25,9 @@ namespace D3_Learning
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/d3").Include(
-                        "~/Scripts/d3*"));
+                        "~/Scripts/d3*",
+                        "~/Scripts/plugins/sankey.js",
+                        "~/Scripts/plugins/d3.layout.cloud.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                         "~/Scripts/bootstrap-3.3.5-dist/js/bootstrap*"));

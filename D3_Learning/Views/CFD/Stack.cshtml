@@ -146,8 +146,12 @@
                     svg.select(".x.axis").call(xAxis);
                     svg.select(".y.axis").call(yAxis);
 
-                    svg.selectAll("path.area").style("fill", function (d) { return phaseColors(d.name); });
-                    svg.selectAll("path.area").attr("d", function (d) { return stackArea(d.values); });
+                    svg.selectAll("path.area")
+                        //.transition()
+                        .style("fill", function (d) { return phaseColors(d.name); });
+                    svg.selectAll("path.area")
+                        .transition()
+                        .attr("d", function (d) { return stackArea(d.values); });
                     //svg.select("circle").attr("d", revStream);
 
                 }

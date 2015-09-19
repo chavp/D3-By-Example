@@ -35,5 +35,15 @@ namespace D3_Learning.Controllers
         {
             return View();
         }
+
+        public ActionResult Sankey()
+        {
+            return View();
+        }
+
+        public ActionResult WordCloud()
+        {
+            return View();
+        }
     }
 }

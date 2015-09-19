@@ -221,6 +221,8 @@
     <Content Include="Scripts\bootstrap-3.3.5-dist\fonts\glyphicons-halflings-regular.woff2" />
     <Content Include="Content\data\tweetdata.csv" />
     <Content Include="Content\data\movies.csv" />
+    <Content Include="Content\data\sitestats.json" />
+    <Content Include="Content\data\worddata.csv" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
     <Content Include="Scripts\bootstrap-3.1.1-dist\css\bootstrap-theme.css" />
     <Content Include="Scripts\bootstrap-3.1.1-dist\css\bootstrap-theme.min.css" />
@@ -254,6 +256,8 @@
     <Content Include="Scripts\knockout-2.2.0.debug.js" />
     <Content Include="Scripts\knockout-2.2.0.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\plugins\d3.layout.cloud.js" />
+    <Content Include="Scripts\plugins\sankey.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -284,6 +288,8 @@
     <Content Include="Views\InAction\ComplexAccessorFunctions.cshtml" />
     <Content Include="Views\CFD\Stack.cshtml" />
     <Content Include="Views\CFD\StackBar.cshtml" />
+    <Content Include="Views\InAction\Sankey.cshtml" />
+    <Content Include="Views\InAction\WordCloud.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
