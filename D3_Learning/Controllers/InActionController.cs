@@ -45,5 +45,10 @@ namespace D3_Learning.Controllers
         {
             return View();
         }
+
+        public ActionResult Networks()
+        {
+            return View();
+        }
     }
 }

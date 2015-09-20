@@ -1,0 +1,301 @@
+﻿@{
+    ViewBag.Title = "Networks";
+}
+
+<style>
+    svg{
+        width: 500px;
+        height: 500px;
+    }
+
+    .grid {
+        stroke: black;
+        stroke-width: 1px;
+        fill: red;
+    }
+
+    .arc {
+        stroke: black;
+        fill: none;
+    }
+
+    .node {
+        fill: lightgray;
+        stroke: black;
+        stroke-width: 1px;
+    }
+
+    circle.active {
+        fill: red !important;
+    }
+
+    path.active {
+        stroke: red;
+    }
+
+</style>
+
+<h2>Networks</h2>
+<hr />
+<svg></svg>
+
+@section scripts{
+    <script>
+
+    function adjacency() {
+        queue()
+            .defer(d3.csv, "@Url.Content("~/Content/data/nodelist.csv")")
+            .defer(d3.csv, "@Url.Content("~/Content/data/edgelist.csv")")
+                    .await(function (error, file1, file2) {
+                        createAdjacencyMatrix(file1, file2);
+                    });
+    }
+
+    function createAdjacencyMatrix(nodes, edges) {
+        var edgeHash = {};
+        for (x in edges) {
+            var id = edges[x].source + "-" + edges[x].target;
+            edgeHash[id] = edges[x];
+        };
+        matrix = [];
+        for (a in nodes) {
+            for (b in nodes) {
+                var grid =
+                {
+                    id: nodes[a].id + "-" + nodes[b].id,
+                    x: b, y: a, weight: 0
+                };
+                if (edgeHash[grid.id]) {
+                    grid.weight = edgeHash[grid.id].weight;
+                };
+                matrix.push(grid);
+            };
+        };
+
+        d3.select("svg")
+                .append("g")
+                .attr("transform", "translate(50,50)")
+                .attr("id", "adjacencyG")
+                .selectAll("rect")
+                .data(matrix)
+                .enter()
+                .append("rect")
+                .attr("class", "grid")
+                .attr("width", 25)
+                .attr("height", 25)
+                .attr("x", function (d) { return d.x * 25 })
+                .attr("y", function (d) { return d.y * 25 })
+                .style("fill-opacity", function (d) { return d.weight * .2; });
+
+        var scaleSize = nodes.length * 25;
+
+        var nameScale = d3.scale.ordinal()
+            .domain(nodes.map(function (el) { return el.id }))
+            .rangePoints([0, scaleSize], 1);
+
+        var xAxis = d3.svg.axis()
+            .scale(nameScale).orient("top").tickSize(4);
+
+        var yAxis = d3.svg.axis()
+            .scale(nameScale).orient("left").tickSize(4);
+
+        d3.select("#adjacencyG").append("g").call(yAxis);
+        d3.select("#adjacencyG").append("g").call(xAxis)
+                .selectAll("text")
+                .style("text-anchor", "end")
+                .attr("transform", "translate(-10,-10) rotate(90)");
+
+        d3.select("svg").selectAll("rect").on("click", function (d, i) {
+            console.log(d);
+        });
+
+        d3.selectAll("rect.grid").on("mouseover", gridOver);
+        function gridOver(d, i) {
+            d3.selectAll("rect").style("stroke-width", function (p) {
+                return p.x == d.x || p.y == d.y ? "3px" : "1px"
+            });
+        };
+    }
+
+    function arcDiagram() {
+        queue()
+            .defer(d3.csv, "@Url.Content("~/Content/data/nodelist.csv")")
+            .defer(d3.csv, "@Url.Content("~/Content/data/edgelist.csv")")
+            .await(function (error, file1, file2) {
+                createArcDiagram(file1, file2);
+            });
+    }
+
+    function createArcDiagram(nodes, edges) {
+        var nodeHash = {};
+        for (x in nodes) {
+            nodeHash[nodes[x].id] = nodes[x];
+            nodes[x].x = parseInt(x) * 40;
+        };
+        for (x in edges) {
+            edges[x].weight = parseInt(edges[x].weight);
+            edges[x].source = nodeHash[edges[x].source];
+            edges[x].target = nodeHash[edges[x].target];
+        };
+
+        linkScale = d3.scale.linear()
+                .domain(d3.extent(edges, function (d) { return d.weight }))
+                .range([5, 10]);
+
+        var arcG = d3.select("svg").append("g").attr("id", "arcG")
+                    .attr("transform", "translate(50,250)");
+
+        arcG.selectAll("path")
+                .data(edges)
+                .enter()
+                .append("path")
+                .attr("class", "arc")
+                .style("stroke-width", function (d) { return d.weight * 2; })
+                .style("opacity", .25)
+                .attr("d", arc);
+
+        arcG.selectAll("circle")
+            .data(nodes)
+            .enter()
+            .append("circle")
+            .attr("class", "node")
+            .attr("r", 10)
+            .attr("cx", function (d) { return d.x; });
+
+        arcG.selectAll("text")
+            .data(nodes)
+            .enter()
+                .append("text")
+                .attr("x", function (d) { return d.x - 10; })
+                .attr("y", 23)
+                .text(function (d) {
+                    return d.id;
+                });
+
+        function arc(d, i) {
+            var draw = d3.svg.line().interpolate("basis");
+            var midX = (d.source.x + d.target.x) / 2;
+            var midY = (d.source.x - d.target.x) * 2;
+            return draw([[d.source.x, 0], [midX, midY], [d.target.x, 0]])
+        };
+
+        d3.selectAll("circle").on("mouseover", nodeOver);
+        d3.selectAll("circle").on("mouseleave", nodeLeave);
+        d3.selectAll("path").on("mouseover", edgeOver);
+        d3.selectAll("path").on("mouseleave", edgeLeave);
+
+        function nodeOver(d, i) {
+            d3.selectAll("circle").classed("active", function (p) {
+                return p == d ? true : false;
+            });
+            d3.selectAll("path").classed("active", function (p) {
+                return p.source == d || p.target == d ? true : false;
+            });
+            //d3.selectAll("circle").style("fill", function (p) {
+            //    return p == d ? "red" : "lightgray";
+            //});
+        };
+        function nodeLeave(d, i) {
+            d3.selectAll("circle").classed("active", false);
+            d3.selectAll("path").classed("active", false);
+            d3.selectAll("circle").style("fill", "lightgray");
+        }
+
+        function edgeOver(d) {
+            d3.selectAll("path").classed("active", function(p) {
+                return p == d ? true : false;
+            });
+            d3.selectAll("circle").style("fill", function (p) {
+                return p == d.source ? "blue" : p == d.target ? "green" : "lightgray";
+            });
+        };
+        function edgeLeave(d, i) {
+            d3.selectAll("circle").style("fill", "lightgray");
+            d3.selectAll("path").classed("active", false);
+        }
+    }
+
+    function forceDirected() {
+        queue()
+            .defer(d3.csv, "@Url.Content("~/Content/data/nodelist.csv")")
+            .defer(d3.csv, "@Url.Content("~/Content/data/edgelist.csv")")
+                    .await(function (error, file1, file2) {
+                        createForceLayout(file1, file2);
+                    });
+    }
+
+    function createForceLayout(nodes, edges) {
+        var nodeHash = {};
+        for (x in nodes) {
+            nodeHash[nodes[x].id] = nodes[x];
+        };
+        for (x in edges) {
+            edges[x].weight = parseInt(edges[x].weight);
+            edges[x].source = nodeHash[edges[x].source];
+            edges[x].target = nodeHash[edges[x].target];
+        };
+
+        var weightScale = d3.scale.linear()
+                            .domain(d3.extent(edges, function (d) { return d.weight; }))
+                            .range([.1, 1]);
+
+        var followersScale = d3.scale.linear()
+                            .domain(d3.extent(nodes, function (d) { return d.followers; }))
+                            .range([5, 20]);
+
+        var force = d3.layout.force().charge(-1000)
+                        .size([500, 500])
+                        .nodes(nodes)
+                        .links(edges)
+                        .on("tick", forceTick);
+
+        d3.select("svg")
+            .selectAll("line.link")
+                .data(edges, function (d) { return d.source.id + "-" + d.target.id; })
+                .enter()
+                .append("line")
+                .attr("class", "link")
+                .style("stroke", "black")
+                .style("opacity", .5)
+                .style("stroke-width", function (d) { return d.weight });
+
+        var nodeEnter = d3.select("svg").selectAll("g.node")
+                        .data(nodes, function (d) { return d.id })
+                        .enter()
+                        .append("g")
+                        .attr("class", "node");
+
+        nodeEnter.append("circle")
+                    .attr("r", function (d) { return followersScale(d.followers); })
+                    .style("fill", "lightgray")
+                    .style("stroke", "black")
+                    .style("stroke-width", "1px");
+
+        nodeEnter.append("text")
+                    .style("text-anchor", "middle")
+                    .attr("y", 15)
+                    .text(function (d) { return d.id; });
+
+        force.start();
+
+        function forceTick() {
+            d3.selectAll("line.link")
+            .attr("x1", function (d) {return d.source.x;})
+            .attr("x2", function (d) {return d.target.x;})
+            .attr("y1", function (d) {return d.source.y;})
+            .attr("y2", function (d) { return d.target.y; });
+
+            d3.selectAll("g.node")
+                .attr("transform", function (d) {
+                    return "translate(" + d.x + "," + d.y + ")";
+                })
+        };
+    }
+
+    $(function () {
+        //adjacency();
+        //arcDiagram();
+        forceDirected();
+    });
+    </script>
+}
