@@ -126,6 +126,8 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\BigDataController.cs" />
+    <Compile Include="Controllers\BootstrapD3Controller.cs" />
     <Compile Include="Controllers\CFDController.cs" />
     <Compile Include="Controllers\D3Controller.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -148,6 +150,7 @@
   <ItemGroup>
     <Content Include="Content\data\some_data.json" />
     <Content Include="Content\data\tweets.json" />
+    <Content Include="Content\data\world.geojson" />
     <Content Include="Content\resources\modal.html" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
@@ -225,6 +228,8 @@
     <Content Include="Content\data\worddata.csv" />
     <Content Include="Content\data\edgelist.csv" />
     <Content Include="Content\data\nodelist.csv" />
+    <Content Include="Content\data\realestate.json" />
+    <Content Include="Content\data\world.topojson" />
     <None Include="Scripts\jquery-1.8.2.intellisense.js" />
     <Content Include="Scripts\bootstrap-3.1.1-dist\css\bootstrap-theme.css" />
     <Content Include="Scripts\bootstrap-3.1.1-dist\css\bootstrap-theme.min.css" />
@@ -258,9 +263,13 @@
     <Content Include="Scripts\knockout-2.2.0.debug.js" />
     <Content Include="Scripts\knockout-2.2.0.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
+    <Content Include="Scripts\plugins\colorbrewer.js" />
+    <Content Include="Scripts\plugins\d3.geo.projection.min.js" />
     <Content Include="Scripts\plugins\d3.layout.cloud.js" />
     <Content Include="Scripts\plugins\queue.js" />
     <Content Include="Scripts\plugins\sankey.js" />
+    <Content Include="Scripts\plugins\tile.js" />
+    <Content Include="Scripts\plugins\topojson.js" />
     <Content Include="Scripts\_references.js" />
     <Content Include="Web.config" />
     <Content Include="Web.Debug.config">
@@ -294,6 +303,13 @@
     <Content Include="Views\InAction\Sankey.cshtml" />
     <Content Include="Views\InAction\WordCloud.cshtml" />
     <Content Include="Views\InAction\Networks.cshtml" />
+    <Content Include="Views\InAction\BasicMapmaking.cshtml" />
+    <Content Include="Views\InAction\ComposingInteractiveApp.cshtml" />
+    <Content Include="Views\BootstrapD3\Index.cshtml" />
+    <Content Include="Views\BigData\Fig_11_05.cshtml" />
+    <Content Include="Views\BigData\Fig_11_02.cshtml" />
+    <Content Include="Views\BigData\Fig_11_06.cshtml" />
+    <Content Include="Views\BigData\Fig_11_09.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

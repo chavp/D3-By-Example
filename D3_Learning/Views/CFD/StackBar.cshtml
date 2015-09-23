@@ -71,6 +71,24 @@
                                     .attr("width", 30)
                                     .style("fill", movieColors(d.name));
                                 });
+
+                d3.selectAll("g.bar rect")
+                .on("mouseover", hover)
+                .on("mouseout", mouseOut);
+
+                function hover(hoverD) {
+                    //console.log(hoverD);
+                    d3.selectAll("g.bar rect")
+                        .filter(function (d) { return d == hoverD; })
+                        .style("opacity", 0.5);
+                };
+
+                function mouseOut(mouseOutD) {
+                    console.log(mouseOutD);
+                    d3.selectAll("g.bar rect")
+                        .filter(function (d) { return d == mouseOutD; })
+                        .style("opacity", 1.0);
+                };
             }
 
             d3.csv('@Url.Content("~/Content/data/movies.csv")', dataVisz);

@@ -28,7 +28,11 @@ namespace D3_Learning
                         "~/Scripts/d3*",
                         "~/Scripts/plugins/sankey.js",
                         "~/Scripts/plugins/d3.layout.cloud.js",
-                        "~/Scripts/plugins/queue.js"));
+                        "~/Scripts/plugins/queue.js",
+                        "~/Scripts/plugins/colorbrewer.js",
+                        "~/Scripts/plugins/d3.geo.projection.min.js",
+                        "~/Scripts/plugins/tile.js",
+                        "~/Scripts/plugins/topojson.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
                         "~/Scripts/bootstrap-3.3.5-dist/js/bootstrap*"));

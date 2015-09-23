@@ -50,5 +50,15 @@ namespace D3_Learning.Controllers
         {
             return View();
         }
+
+        public ActionResult BasicMapmaking()
+        {
+            return View();
+        }
+
+        public ActionResult ComposingInteractiveApp()
+        {
+            return View();
+        }
     }
 }

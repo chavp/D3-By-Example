@@ -1,0 +1,105 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<style>
+    svg {
+    height: 500px;
+    width: 500px;
+    border: 1px solid gray;
+  }
+</style>
+
+<h2>Index</h2>
+<hr />
+
+<h4>Glyphicons</h4>
+<svg></svg>
+
+@section scripts{
+    <script>
+        d3.layout.grid = function () {
+            var gridSize = [10, 10];
+            var gridColumns;
+            var gridRows;
+
+            function processGrid(data) {
+
+                var rows = Math.ceil(Math.sqrt(data.length));
+                var columns = Math.ceil(Math.sqrt(data.length));
+
+                var x = 0;
+
+                for (i = 0; i < rows; i++) {
+                    for (j = 0; j < columns; j++) {
+                        if (data[x]) {
+                            data[x].x = j;
+                            data[x].y = i;
+                            x++;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                }
+
+                return data;
+            }
+
+            processGrid.size = function (newSize) {
+                if (!arguments.length) return gridSize;
+
+                gridSize = newSize;
+                return this;
+            }
+
+            return processGrid;
+        }
+
+        $(function () {
+            d3.json("@Url.Content("~/Content/data/tweets.json")", function (error, data) {
+                makeAGrid(data);
+            });
+
+            function makeAGrid(data) {
+                var scale = d3.scale.linear().domain([0, 5]).range([100, 400]);
+                var grid = d3.layout.grid()
+                var griddedData = grid(data.tweets);
+
+                d3.select("svg").selectAll("circle").data(griddedData)
+                .enter()
+                .append("rect")
+                .attr("x", function (d) { return scale(d.x) })
+                .attr("y", function (d) { return scale(d.y) })
+                .attr("width", 25)
+                .attr("height", 25)
+                .style("fill", "pink")
+
+                var fakeTweets = []
+                for (x = 0; x < 12; x++) {
+                    var tweet = { id: x, content: "Fake Tweet #" + x };
+                    fakeTweets.push(tweet);
+                }
+                var doubledArray = data.tweets.concat(fakeTweets);
+
+                var newGriddedData = grid(doubledArray);
+
+                d3.select("svg").selectAll("rect").data(newGriddedData)
+                .enter()
+                .append("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", 25)
+                .attr("height", 25)
+                .style("fill", "darkred");
+
+                d3.select("svg").selectAll("rect")
+                    .transition()
+                    .duration(1000)
+                    .attr("x", function (d) { return scale(d.x) })
+                .attr("y", function (d) { return scale(d.y) })
+
+            }
+        });
+    </script>
+}
